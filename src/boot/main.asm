@@ -76,6 +76,7 @@ longmode_check:
         jmp     err
 
 
+; TODO: What the fuck is this doing aaaaaaa
 page_table_setup:
     mov     eax, page_tbl_3
     or      eax, 0b11 ; present, writeable
