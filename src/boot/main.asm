@@ -76,7 +76,6 @@ longmode_check:
         jmp     err
 
 
-; TODO: What the fuck is this doing aaaaaaa
 page_table_setup:
     mov     eax, page_tbl_3
     or      eax, 0b11 ; present, writeable
@@ -88,7 +87,8 @@ page_table_setup:
 
     mov     ecx, 0
     .loop:
-        mov eax, 0x200000
+        mov eax, 0x200000 ; map in increments of 2MiB. Because it's a *huge page*, you can map in increments of 2MiB
+                          ; instead of 4KiB
         mul ecx
         or eax, 0b10000011 ; present, writable, huge page
         mov [page_tbl_2 + ecx * 8], eax
