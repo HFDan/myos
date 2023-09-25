@@ -1,5 +1,5 @@
 #include "error.h"
-#include "tty.h"
+#include "drivers/video/vga.h"
 
 struct regsOnStack {
     uint64_t r15;
@@ -24,18 +24,18 @@ void u642hex(uint64_t num, char* out) {
     char hexDigits[] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
     out[0] = '0';
     out[1] = 'x';
-    
+
     size_t addto = 2;
     while (num) {
         out[addto] = hexDigits[num%16];
         num /= 16;
         addto++;
     }
-    
+
     out[addto+1] = '\0';
     size_t size = addto-2;
 
-    char* out_remapped = &(out[0]) + 2; 
+    char* out_remapped = &(out[0]) + 2;
     for (size_t i = 0; i < size/2; i++) {
         char aux = out_remapped[i];
         out_remapped[i] = out_remapped[size-i-1];
@@ -44,100 +44,100 @@ void u642hex(uint64_t num, char* out) {
 }
 
 void kpanic(char* msg, void* regs) {
-    tty_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
-    tty_puts("Begin Kernel Panic\n==================\n");
-    tty_puts("Err: ");
-    tty_puts(msg);
-    tty_puts("\n");
-    
+    vga_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+    vga_puts("Begin Kernel Panic\n==================\n");
+    vga_puts("Err: ");
+    vga_puts(msg);
+    vga_puts("\n");
+
     // Print status
     struct regsOnStack* stackRegs = (struct regsOnStack*)regs;
-    
-    tty_puts("Registers:\n");
+
+    vga_puts("Registers:\n");
     // i hate this
     #pragma region was ist das? aaaaaaああああああああああ
     {
         char out[20];
 
         u642hex(stackRegs->rsp, out);
-        tty_puts("rsp: ");
-        tty_puts(out);
-        tty_puts("\n");
-        
+        vga_puts("rsp: ");
+        vga_puts(out);
+        vga_puts("\n");
+
         u642hex(stackRegs->rax, out);
-        tty_puts("rax: ");
-        tty_puts(out);
-        tty_puts("\n");
-        
+        vga_puts("rax: ");
+        vga_puts(out);
+        vga_puts("\n");
+
         u642hex(stackRegs->rbx, out);
-        tty_puts("rbx: ");
-        tty_puts(out);
-        tty_puts("\n");
-        
+        vga_puts("rbx: ");
+        vga_puts(out);
+        vga_puts("\n");
+
         u642hex(stackRegs->rcx, out);
-        tty_puts("rcx: ");
-        tty_puts(out);
-        tty_puts("\n");
-        
+        vga_puts("rcx: ");
+        vga_puts(out);
+        vga_puts("\n");
+
         u642hex(stackRegs->rdx, out);
-        tty_puts("rdx: ");
-        tty_puts(out);
-        tty_puts("\n");
-        
+        vga_puts("rdx: ");
+        vga_puts(out);
+        vga_puts("\n");
+
         u642hex(stackRegs->rsi, out);
-        tty_puts("rsi: ");
-        tty_puts(out);
-        tty_puts("\n");
-        
+        vga_puts("rsi: ");
+        vga_puts(out);
+        vga_puts("\n");
+
         u642hex(stackRegs->rdi, out);
-        tty_puts("rdi: ");
-        tty_puts(out);
-        tty_puts("\n");
-        
+        vga_puts("rdi: ");
+        vga_puts(out);
+        vga_puts("\n");
+
         u642hex(stackRegs->rbp, out);
-        tty_puts("rbp: ");
-        tty_puts(out);
-        tty_puts("\n");
-        
+        vga_puts("rbp: ");
+        vga_puts(out);
+        vga_puts("\n");
+
         u642hex(stackRegs->r8, out);
-        tty_puts("r8:  ");
-        tty_puts(out);
-        tty_puts("\n");
-        
+        vga_puts("r8:  ");
+        vga_puts(out);
+        vga_puts("\n");
+
         u642hex(stackRegs->r9, out);
-        tty_puts("r9:  ");
-        tty_puts(out);
-        tty_puts("\n");
-        
+        vga_puts("r9:  ");
+        vga_puts(out);
+        vga_puts("\n");
+
         u642hex(stackRegs->r10, out);
-        tty_puts("r10: ");
-        tty_puts(out);
-        tty_puts("\n");
-        
+        vga_puts("r10: ");
+        vga_puts(out);
+        vga_puts("\n");
+
         u642hex(stackRegs->r11, out);
-        tty_puts("r11: ");
-        tty_puts(out);
-        tty_puts("\n");
-        
+        vga_puts("r11: ");
+        vga_puts(out);
+        vga_puts("\n");
+
         u642hex(stackRegs->r12, out);
-        tty_puts("r12: ");
-        tty_puts(out);
-        tty_puts("\n");
+        vga_puts("r12: ");
+        vga_puts(out);
+        vga_puts("\n");
 
         u642hex(stackRegs->r13, out);
-        tty_puts("r13: ");
-        tty_puts(out);
-        tty_puts("\n");
+        vga_puts("r13: ");
+        vga_puts(out);
+        vga_puts("\n");
 
         u642hex(stackRegs->r14, out);
-        tty_puts("r14: ");
-        tty_puts(out);
-        tty_puts("\n");
+        vga_puts("r14: ");
+        vga_puts(out);
+        vga_puts("\n");
 
         u642hex(stackRegs->r15, out);
-        tty_puts("r15: ");
-        tty_puts(out);
-        tty_puts("\n");
+        vga_puts("r15: ");
+        vga_puts(out);
+        vga_puts("\n");
     }
     #pragma endregion
 
@@ -145,7 +145,7 @@ void kpanic(char* msg, void* regs) {
 }
 
 void kerror(char* msg) {
-    tty_color(VGA_COLOR_RED, VGA_COLOR_BLACK);
-    tty_puts(msg);
-    tty_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+    vga_color(VGA_COLOR_RED, VGA_COLOR_BLACK);
+    vga_puts(msg);
+    vga_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
 }

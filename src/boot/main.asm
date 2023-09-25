@@ -1,6 +1,9 @@
 %use masm
 
 global kernel_start
+global gdt64
+global gdt64.kernel_code_segment
+global gdt64.kernel_data_segment
 extern long_mode_start
 
 section .text
@@ -16,6 +19,8 @@ kernel_start:
     call    enable_paging
 
     lgdt    [gdt64.pointer]
+    mov     eax, gdt64.kernel_data_segment
+    mov     ds, eax
     jmp     gdt64.kernel_code_segment:long_mode_start
 
     hlt
@@ -148,11 +153,11 @@ stack_top:
 
 section .rodata:
 gdt64:
-    dq 0
+    dq 0 ; null descriptor
 .kernel_code_segment: equ $ - gdt64
-    dq (1 << 43) | (1 << 44) | (1 << 47) | (1 << 53) ; in order: executable, descriptor - code/data, present, long mode
+    dq (1 << 43) | (1 << 44) | (1 << 47) | (1 << 53) ; in order: executable, code or data, present, long mode code
 .kernel_data_segment: equ $ - gdt64
-    dq 0 ; TODO
+    dq (0 << 43) | (1 << 44) | (1 << 47) ; in order: non-executable, code or data, present
 .pointer:
     dw $ - gdt64 - 1
     dq gdt64

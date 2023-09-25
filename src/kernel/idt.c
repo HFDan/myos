@@ -1,24 +1,30 @@
-#include <stdint.h>
 #include "idt.h"
 
-extern uint64_t isr1;
+static idtr_t idtr;
 
-void idt64_entry_setOffset(struct idt64_entry* this, uint64_t offset) {
-    this->offset_low = (uint16_t)(offset & 0x000000000000ffff);
-    this->offset_mid = (uint16_t)((offset & 0x00000000ffff0000) >> 16);
-    this->offset_high = (uint32_t)((offset & 0xffffffff00000000) >> 32);
+__attribute__((aligned(0x10)))
+static idt_entry_t idt[256];
+
+void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags) {
+    idt_entry_t* entry = &idt[vector];
+
+    entry->isr_low = (uint64_t)isr & 0xFFFF;
+    entry->kernel_cs = 0x08;
+    entry->ist = 0;
+    entry->attrib = flags;
+    entry->isr_middle = ((uint64_t)isr >> 16) & 0xFFFF;
+    entry->isr_high = ((uint64_t)isr >> 32) & 0xFFFFFFFF;
+    entry->reserved = 0;
 }
 
-uint64_t idt64_entry_getOffset(struct idt64_entry* this) {
-    uint64_t offset = 0;
-    offset |= (uint64_t)this->offset_low;
-    offset |= (uint64_t)this->offset_mid << 16;
-    offset |= (uint64_t)this->offset_high << 32;
-    return offset;
-}
+void idt_init() {
+    idtr.base = (uintptr_t)&idt[0];
+    idtr.limit = (uint16_t)sizeof(idt_entry_t) * 1 - 1; // We init an empty IDT for now...
 
-struct IDTR idtr;
-void initIDT() {
-    idtr.limit = 0x0fff;
-    // TODO
+    for (uint8_t vector = 0; vector < 32; vector++) {
+        idt_set_descriptor(vector, 0, 0); // We mark them all as not present
+    }
+
+    __asm volatile ("lidt %0" : : "m"(idtr));
+    __asm volatile ("sti");
 }

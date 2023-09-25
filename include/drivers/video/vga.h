@@ -22,7 +22,7 @@ enum {
 	VGA_COLOR_WHITE = 15,
 };
 
-void tty_clear();
-void tty_putchar(char ch);
-void tty_puts(char* str);
-void tty_color(uint8_t fg, uint8_t bg);
+void vga_clear();
+void vga_putchar(char ch);
+void vga_puts(char* str);
+void vga_color(uint8_t fg, uint8_t bg);

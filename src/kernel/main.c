@@ -1,9 +1,10 @@
-#include "tty.h"
-#include "lowlevel.h"
+#include "printk.h"
+#include "idt.h"
+#include "drivers/video/vga.h"
 
 void kmain() {
-    tty_clear();
-    tty_color(VGA_COLOR_YELLOW, VGA_COLOR_BLACK);
-    tty_puts("Bruh i spent 16 hours just to setup a basic VGA driver :skull:\n");
-    halt();
+    idt_init();
+    vga_clear();
+    printk("Hello, kernel!");
+    __asm volatile("hlt");
 }
