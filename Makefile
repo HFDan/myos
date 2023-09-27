@@ -17,11 +17,11 @@ all_obj := $(c_obj) $(asm_obj) $(cxx_obj)
 
 $(c_obj): build/%.o : src/%.c
 	mkdir -p $(dir $@) && \
-	$(CC) -c -I./include -ffreestanding --target=x86_64-pc-none -std=c17 -masm=intel -g $(patsubst build/%.o, src/%.c, $@) -o $@
+	$(CC) -c -I./include -ffreestanding --target=x86_64-pc-none -std=c17 -masm=intel -mno-red-zone -Wall -Wextra -Wpedantic -O0 -g $(patsubst build/%.o, src/%.c, $@) -o $@
 
 $(cxx_obj): build/%.o : src/%.cpp
 	mkdir -p $(dir $@) && \
-	$(CXX) -c -I./include -ffreestanding --target=x86_64-pc-none -std=c++20 -masm=intel -g $(patsubst build/%.o, src/%.cpp, $@) -o $@
+	$(CXX) -c -I./include -ffreestanding --target=x86_64-pc-none -std=c++20 -masm=intel -mno-red-zone -Wall -Wextra -Wpedantic -O0 -g $(patsubst build/%.o, src/%.cpp, $@) -o $@
 
 $(asm_obj): build/%.o : src/%.asm
 	mkdir -p $(dir $@) && \

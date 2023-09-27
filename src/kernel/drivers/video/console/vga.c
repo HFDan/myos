@@ -47,8 +47,11 @@ void vga_clear() {
     for (size_t i = 0; i < NUM_ROWS; i++) {
         __clear_row(i);
     }
+    col = 0;
+    row = 0;
 }
 
+// TODO: ANSI color codes
 void vga_putchar(char ch) {
     if (ch == '\n') {
         __print_newline();

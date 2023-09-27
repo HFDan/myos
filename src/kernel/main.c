@@ -1,10 +1,15 @@
 #include "printk.h"
-#include "idt.h"
+#include "interrupts.h"
+#include "panic.h"
 #include "drivers/video/vga.h"
 
 void kmain() {
-    idt_init();
     vga_clear();
+    idt_init();
     printk("Hello, kernel!");
-    __asm volatile("hlt");
+
+    panic("Intentional kernel panic");
+    for (;;) {
+        __asm volatile("hlt");
+    }
 }

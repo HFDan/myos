@@ -1,9 +1,6 @@
 %use masm
 
 global kernel_start
-global gdt64
-global gdt64.kernel_code_segment
-global gdt64.kernel_data_segment
 extern long_mode_start
 
 section .text
@@ -19,8 +16,8 @@ kernel_start:
     call    enable_paging
 
     lgdt    [gdt64.pointer]
-    mov     eax, gdt64.kernel_data_segment
-    mov     ds, eax
+    mov     ax, gdt64.kernel_data_segment
+    mov     ds, ax
     jmp     gdt64.kernel_code_segment:long_mode_start
 
     hlt

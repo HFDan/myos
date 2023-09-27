@@ -1,4 +1,5 @@
 #include "error.h"
+#include "printk.h"
 #include "drivers/video/vga.h"
 
 struct regsOnStack {
@@ -41,6 +42,18 @@ void u642hex(uint64_t num, char* out) {
         out_remapped[i] = out_remapped[size-i-1];
         out_remapped[size-i-1] = aux;
     }
+}
+
+void panic(const char* msg) {
+    // Stop interrupts
+    __asm volatile("cli");
+
+    vga_clear();
+    vga_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+    printk("Kernel panic - not syncing: %s\n", msg);
+
+    printk("Halting...\n");
+    __asm volatile("hlt");
 }
 
 void kpanic(char* msg, void* regs) {

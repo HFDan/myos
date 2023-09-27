@@ -1,3 +1,4 @@
 #pragma once
+#include <stdarg.h>
 
-void printk(char* str);
+void printk(char* fmt, ...);
