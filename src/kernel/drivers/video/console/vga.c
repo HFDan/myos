@@ -1,4 +1,5 @@
 #include "drivers/video/vga.h"
+#include "sys/io.h"
 
 #define VGA_BUFFER_START (struct vgachar*)0xb8000;
 static const size_t NUM_COLS = 80;
@@ -15,7 +16,38 @@ size_t row = 0;
 
 uint8_t color = VGA_COLOR_WHITE | VGA_COLOR_BLACK << 4;
 
-void __clear_row(size_t row) {
+void vga_enable_cursor(uint8_t start, uint8_t end) {
+    outb(0x3d4, 0x0a);
+    outb(0x3d5, (inb(0x3d5) & 0xc0) | start);
+
+    outb(0x3d4, 0x0b);
+    outb(0x3d5, (inb(0x3d5) & 0xe0) | end);
+}
+
+void vga_disable_cursor() {
+    outb(0x3d4, 0x0a);
+    outb(0x3d5, 0x20);
+}
+
+static void __update_cursor(int32_t x, int32_t y) {
+    uint16_t pos = y * NUM_COLS + x;
+
+    outb(0x3d4, 0x0f);
+    outb(0x3d5, (uint8_t)(pos & 0xff));
+    outb(0x3d4, 0x0e);
+    outb(0x3d5, (uint8_t)((pos >> 8) & 0xff));
+}
+
+static uint16_t __get_cursor_pos() {
+    uint16_t pos = 0;
+    outb(0x3D4, 0x0F);
+    pos |= inb(0x3D5);
+    outb(0x3D4, 0x0E);
+    pos |= ((uint16_t)inb(0x3D5)) << 8;
+    return pos;
+}
+
+static void __clear_row(size_t row) {
     struct vgachar empty = {
         .chr =  ' ',
         .color =  color
@@ -26,7 +58,7 @@ void __clear_row(size_t row) {
     }
 }
 
-void __print_newline() {
+static void __print_newline() {
     col = 0;
 
     if (row < NUM_ROWS - 1) {
@@ -83,3 +115,4 @@ void vga_puts(char* str) {
 void vga_color(uint8_t fg, uint8_t bg) {
     color = fg + (bg << 4);
 }
+

@@ -26,3 +26,5 @@ void vga_clear();
 void vga_putchar(char ch);
 void vga_puts(char* str);
 void vga_color(uint8_t fg, uint8_t bg);
+void vga_enable_cursor(uint8_t start, uint8_t end);
+void vga_disable_cursor();
