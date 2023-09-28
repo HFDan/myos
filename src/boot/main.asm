@@ -1,12 +1,14 @@
 %use masm
 
 global kernel_start
+global multiboot_info_data
 extern long_mode_start
 
 section .text
 bits 32 ; not in 64 bit long mode yet
 kernel_start:
     mov     esp, stack_top
+    mov     [multiboot_info_data], ebx
 
     call    multiboot_check
     call    cpuid_check
@@ -134,7 +136,10 @@ err:
 
 section .bss
 
-align 4096
+multiboot_info_data:
+    resq 1
+
+alignb 4096
 
 pml4:
     resb 4096
@@ -146,7 +151,6 @@ pd:
 stack_bot:
     resb    1024 * 2048 ; 2MiB stack size
 stack_top:
-
 
 section .rodata:
 gdt64:

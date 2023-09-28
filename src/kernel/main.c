@@ -3,7 +3,7 @@
 #include "panic.h"
 #include "drivers/video/vga.h"
 
-void kmain() {
+void kmain(void* multiboot_info) {
     vga_clear();
     idt_init();
     printk("Hello, kernel!");

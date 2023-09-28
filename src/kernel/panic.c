@@ -44,6 +44,7 @@ void u642hex(uint64_t num, char* out) {
     }
 }
 
+__attribute__((noreturn))
 void panic(const char* msg) {
     // Stop interrupts
     __asm volatile("cli");
@@ -54,6 +55,8 @@ void panic(const char* msg) {
 
     printk("Halting...\n");
     __asm volatile("hlt");
+    
+    __builtin_unreachable();
 }
 
 void kpanic(char* msg, void* regs) {
